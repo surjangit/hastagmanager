@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wowcake Hashtag Manager</title>
+  <style>
+    :root {
+      --gold: #FFD700;
+      --gold-dark: #b8860b;
+      --neon-yellow: #ffde59;
+      --purple: #8B5CF6;
+      --purple-light: #A78BFA;
+      --dark-bg: #0a0a0f;
+      --card-bg: #1a1a24;
+      --text-light: #ffffff;
+      --text-secondary: #a0a0b0;
+      --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    @keyframes gradient-shift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -1000px 0; }
+      100% { background-position: 1000px 0; }
+    }
+
+    body {
+      background: var(--dark-bg);
+      color: var(--text-light);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.15), transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(255, 215, 0, 0.12), transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(100, 200, 255, 0.08), transparent 70%);
+      animation: gradient-shift 15s ease infinite;
+      background-size: 200% 200%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .floating-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.1;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    .shape-1 {
+      width: 300px;
+      height: 300px;
+      background: var(--gradient-1);
+      top: 10%;
+      left: -10%;
+      animation-delay: 0s;
+    }
+
+    .shape-2 {
+      width: 200px;
+      height: 200px;
+      background: var(--gradient-2);
+      top: 60%;
+      right: -5%;
+      animation-delay: 2s;
+    }
+
+    .shape-3 {
+      width: 250px;
+      height: 250px;
+      background: var(--gradient-3);
+      bottom: 10%;
+      left: 30%;
+      animation-delay: 4s;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      padding: 40px 20px 30px;
+      margin-bottom: 30px;
+      position: relative;
+      animation: slideInUp 0.8s ease-out;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      background: linear-gradient(135deg, var(--gold) 0%, var(--neon-yellow) 50%, var(--purple-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      position: relative;
+      animation: shimmer 3s ease-in-out infinite;
+      background-size: 1000px 100%;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+      font-weight: 300;
+      letter-spacing: 0.5px;
+    }
+
+    .reminder-section {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(255, 215, 0, 0.1) 100%);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      animation: slideInUp 0.8s ease-out 0.2s backwards;
+      transition: all 0.3s ease;
+    }
+
+    .reminder-section:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(139, 92, 246, 0.3);
+    }
+
+    .reminder-toggle {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .reminder-toggle input {
+      width: 50px;
+      height: 26px;
+      position: relative;
+      appearance: none;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .reminder-toggle input::before {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--text-secondary);
+      left: 2px;
+      top: 2px;
+      transition: all 0.3s;
+    }
+
+    .reminder-toggle input:checked {
+      background: linear-gradient(135deg, var(--gold), var(--purple));
+    }
+
+    .reminder-toggle input:checked::before {
+      transform: translateX(24px);
+      background: white;
+    }
+
+    .reminder-label {
+      font-size: 1rem;
+      color: var(--text-light);
+      flex: 1;
+    }
+
+    .hamburger-menu {
+      margin-bottom: 30px;
+      animation: slideInUp 0.8s ease-out 0.3s backwards;
+    }
+
+    .menu-btn {
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: var(--dark-bg);
+      border: none;
+      padding: 14px 24px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+      font-size: 1rem;
+    }
+
+    .menu-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
+    }
+
+    .menu-btn:active {
+      transform: translateY(-1px);
+    }
+
+    .category-tabs {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      padding: 20px;
+      background: rgba(26, 26, 36, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      margin-top: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .category-tabs.active {
+      display: flex;
+      animation: slideInUp 0.4s ease-out;
+    }
+
+    .tab {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(255, 215, 0, 0.1));
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-light);
+      padding: 14px 24px;
+      border-radius: 50px;
+      cursor: pointer;
+      text-align: center;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tab::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .tab:hover::before {
+      left: 100%;
+    }
+
+    .tab:hover {
+      transform: translateY(-2px);
+      border-color: var(--gold);
+      box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, var(--gold), var(--purple));
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 5px 20px rgba(139, 92, 246, 0.5);
+      font-weight: 700;
+    }
+
+    .hashtags-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .hashtag-card, .tip-card {
+      background: linear-gradient(135deg, rgba(26, 26, 36, 0.95), rgba(26, 26, 36, 0.8));
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      transition: all 0.4s ease;
+      animation: slideInUp 0.6s ease-out backwards;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hashtag-card::before, .tip-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .hashtag-card:hover::before, .tip-card:hover::before {
+      opacity: 1;
+    }
+
+    .hashtag-card:hover, .tip-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: var(--gold);
+      box-shadow: 0 15px 50px rgba(139, 92, 246, 0.4);
+    }
+
+    .hashtag-card:nth-child(1) { animation-delay: 0.1s; }
+    .hashtag-card:nth-child(2) { animation-delay: 0.2s; }
+    .hashtag-card:nth-child(3) { animation-delay: 0.3s; }
+    .hashtag-card:nth-child(4) { animation-delay: 0.4s; }
+    .hashtag-card:nth-child(5) { animation-delay: 0.5s; }
+
+    .hashtag-header, .tip-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+    }
+
+    .hashtag-title, .tip-title {
+      font-size: 1.3rem;
+      background: linear-gradient(135deg, var(--gold), var(--neon-yellow));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .copy-btn {
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: var(--dark-bg);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .copy-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .copy-btn:active::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .copy-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
+    }
+
+    .copy-btn span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hashtag-content, .tip-content {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 16px;
+      border-radius: 15px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text-secondary);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .notification {
+      position: fixed;
+      top: 30px;
+      right: 30px;
+      background: linear-gradient(135deg, var(--gold), var(--purple));
+      color: white;
+      padding: 16px 28px;
+      border-radius: 50px;
+      font-weight: 700;
+      transform: translateX(400px);
+      transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      z-index: 1000;
+      box-shadow: 0 8px 32px rgba(139, 92, 246, 0.5);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .notification.show {
+      transform: translateX(0);
+    }
+
+    .reminder-notification {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      background: linear-gradient(135deg, rgba(26, 26, 36, 0.98), rgba(26, 26, 36, 0.95));
+      backdrop-filter: blur(20px);
+      color: var(--text-light);
+      padding: 40px;
+      border-radius: 30px;
+      font-weight: 600;
+      z-index: 1001;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      display: none;
+      text-align: center;
+      max-width: 90%;
+      width: 450px;
+      border: 2px solid rgba(255, 215, 0, 0.3);
+      opacity: 0;
+      transition: all 0.4s ease;
+    }
+
+    .reminder-notification.active {
+      display: block;
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .reminder-notification h3 {
+      font-size: 2rem;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, var(--gold), var(--purple-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .reminder-notification p {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-bottom: 25px;
+    }
+
+    .reminder-btn {
+      background: linear-gradient(135deg, var(--gold), var(--purple));
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 20px rgba(139, 92, 246, 0.4);
+    }
+
+    .reminder-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(139, 92, 246, 0.6);
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        padding: 30px 40px;
+      }
+
+      .category-tabs {
+        display: flex !important;
+        flex-direction: row;
+        background: transparent;
+        box-shadow: none;
+        margin-top: 0;
+        padding: 0;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      
+      .menu-btn {
+        display: none;
+      }
+      
+      .hashtags-container {
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 30px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .hashtags-container {
+        grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 15px;
+      }
+
+      header {
+        padding: 30px 15px 20px;
+      }
+
+      .reminder-section {
+        padding: 16px;
+      }
+
+      .hashtag-card, .tip-card {
+        padding: 20px;
+      }
+
+      .copy-btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="floating-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>✨ Wowcake Hashtag Manager</h1>
+      <p class="subtitle">Your curated collection of Instagram hashtags and tips</p>
+    </header>
+
+    <div class="reminder-section">
+      <div class="reminder-toggle">
+        <input type="checkbox" id="reminderToggle">
+        <label for="reminderToggle" class="reminder-label">Enable Daily Posting Reminder</label>
+      </div>
+    </div>
+
+    <div class="hamburger-menu">
+      <button class="menu-btn" id="menuBtn">
+        <span>☰</span> Categories
+      </button>
+      <div class="category-tabs" id="categoryTabs">
+        <button class="tab active" data-category="all">All</button>
+        <button class="tab" data-category="imphal">Imphal</button>
+        <button class="tab" data-category="manipur">Manipur</button>
+        <button class="tab" data-category="india">India</button>
+        <button class="tab" data-category="tips">Instagram Tips</button>
+      </div>
+    </div>
+
+    <div class="hashtags-container" id="hashtagsContainer">
+      <!-- Hashtags and tips will be populated by JavaScript -->
+    </div>
+  </div>
+
+  <div class="notification" id="notification">Copied to clipboard! 🎉</div>
+  
+  <div class="reminder-notification" id="reminderNotification">
+    <h3>⏰ Time to Post!</h3>
+    <p>Is your content ready to post on Instagram?</p>
+    <button class="reminder-btn" id="reminderBtn">Dismiss</button>
+  </div>
+
+  <script>
+    // Hashtag data organized by category
+    const hashtagData = [
+      {
+        id: 1,
+        title: "Imphal",
+        category: "imphal",
+        content: "Delivery Available all across Greater Imphal.Physical Store: Khoyathong,Near Sanapati Bus Parking,towards Animal Gym/Mimi Singju Leirak. #imphal #manipur #manipuri #imphalcakes #manipurbaking #manipurfood #imphalfood #manipuriyum #manipurilife #imphaltreats #manipuriway #manipuriyum #imphalhomemade #manipurisweets #manipuribakery #imphalbakery #manipuricuisine #manipurifood #imphalfoodie #manipuriexperience #manipurilove #imphallove #manipuriart #manipuriculture #imphalculture #manipuritradition #imphaltradition #manipuricakes #imphalspecial #imphalfood #manipuricakes #manipuribaking #manipurfood"
+      },
+      {
+        id: 2,
+        title: "Manipur",
+        category: "manipur",
+        content: "Delivery Available all across Greater Imphal.Physical Store: Khoyathong,Near Sanapati Bus Parking,towards Animal Gym/Mimi Singju Leirak. #manipur #manipuri #manipuricakes #manipurbaking #manipurfood #manipuriyum #manipurilife #manipurtreats #manipuriway #manipuribaking #manipurihomemade #manipurisweets #manipuribakery #manipuricuisine #manipurifood #manipuriartisan #manipuriculture #manipuritradition #manipurilove #manipuriart #manipuricakes #manipurispecial #manipuriexperience #manipuriyum #manipuriflavors #manipuriheritage #manipuricraft #manipuritaste #manipuricakes #manipurilife #manipurifestival #manipuriyummies #manipuriculture #manipuritradition #manipuriart #manipuriartisan #manipuribakery #manipuricuisine #manipurifood #manipuriyum #manipuriyum"
+      },
+      {
+        id: 3,
+        title: "India",
+        category: "india",
+        content: "#india #indian #indiancakes #indianbaking #indianfood #indianyum #indianlife #indiantreats #indianway #indianbaking #indianhomemade #indiansweets #indianbakery #indiancuisine #indianfood #indianartisan #indianculture #indiantradition #indianlove #indianart #indiancakes #indianspecial #indianexperience #indianyum #indianflavors #indianheritage #indiancraft #indiantaste #indiancakes #indianlife #indianfestival #indiancelebration #indiantradition #indianculture #indianart #indianartisan #indianbakery #indiancuisine #indianfood #indianflavors #indianyum #indianyum"
+      },
+      {
+        id: 3,
+        title: "Core Brand + Local Hashtags",
+        category: "india",
+        content: " #wowcake #wowcakeimphal #imphalcakes #imphalbakery #manipurcakes #imphalfood "
+      }
+    ];
+
+    // Instagram tips data
+    const tipsData = [
+      {
+        id: 4,
+        title: "Best Posting Times",
+        category: "tips",
+        content: "Post between 11am-1pm and 7pm-9pm for maximum engagement. For India, 7-9pm IST works best."
+      },
+      {
+        id: 5,
+        title: "Hashtag Strategy",
+        category: "tips",
+        content: "Use 15-20 relevant hashtags. Mix popular and niche tags. Use location tags like #ImphalFoodie or #ManipurCakes."
+      },
+      {
+        id: 6,
+        title: "Content Planning",
+        category: "tips",
+        content: "Plan a content calendar with 30% promotional, 50% educational, 20% behind-the-scenes content."
+      }
+    ];
+
+    // DOM elements
+    const tabs = document.querySelectorAll('.tab');
+    const hashtagsContainer = document.getElementById('hashtagsContainer');
+    const notification = document.getElementById('notification');
+    const menuBtn = document.getElementById('menuBtn');
+    const categoryTabs = document.getElementById('categoryTabs');
+    const reminderToggle = document.getElementById('reminderToggle');
+    const reminderNotification = document.getElementById('reminderNotification');
+    const reminderBtn = document.getElementById('reminderBtn');
+
+    // Function to render hashtags and tips based on category
+    function renderContent(category = 'all') {
+      hashtagsContainer.innerHTML = '';
+      
+      let contentToShow = [];
+      
+      if (category === 'all') {
+        contentToShow = [...hashtagData, ...tipsData];
+      } else if (category === 'tips') {
+        contentToShow = tipsData;
+      } else {
+        contentToShow = hashtagData.filter(item => item.category === category);
+      }
+      
+      contentToShow.forEach(item => {
+        const isTip = item.category === 'tips';
+        const card = document.createElement('div');
+        card.className = isTip ? 'tip-card' : 'hashtag-card';
+        card.innerHTML = `
+          <div class="${isTip ? 'tip' : 'hashtag'}-header">
+            <h3 class="${isTip ? 'tip' : 'hashtag'}-title">${item.title}</h3>
+            ${isTip ? '' : `<button class="copy-btn" data-content="${item.content}">
+              <span>Copy</span>
+            </button>`}
+          </div>
+          <div class="${isTip ? 'tip' : 'hashtag'}-content">${item.content}</div>
+        `;
+        hashtagsContainer.appendChild(card);
+      });
+      
+      // Add event listeners to new copy buttons
+      document.querySelectorAll('.copy-btn').forEach(button => {
+        button.addEventListener('click', copyHashtags);
+      });
+    }
+
+    // Function to copy hashtags to clipboard
+    function copyHashtags(e) {
+      const content = e.target.closest('.copy-btn').dataset.content;
+      navigator.clipboard.writeText(content)
+        .then(() => {
+          showNotification();
+        })
+        .catch(err => {
+          console.error('Failed to copy: ', err);
+        });
+    }
+
+    // Function to show notification
+    function showNotification() {
+      notification.classList.add('show');
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 2000);
+    }
+
+    // Function to show reminder notification
+    function showReminder() {
+      if (reminderToggle.checked) {
+        reminderNotification.classList.add('active');
+      }
+    }
+
+    // Function to hide reminder notification
+    function hideReminder() {
+      reminderNotification.classList.remove('active');
+    }
+
+    // Check for reminder time (6 PM) every minute
+    function checkReminderTime() {
+      const now = new Date();
+      const currentHours = now.getHours();
+      const currentMinutes = now.getMinutes();
+      
+      // Check if it's 6 PM (18:00) and at the start of the minute
+      if (currentHours === 18 && currentMinutes === 0) {
+        showReminder();
+      }
+    }
+
+    // Initialize the app
+    renderContent();
+
+    // Add event listeners to tabs
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Update active tab
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        // Render content for selected category
+        const category = tab.dataset.category;
+        renderContent(category);
+        
+        // Close menu on mobile after selection
+        categoryTabs.classList.remove('active');
+      });
+    });
+
+    // Toggle hamburger menu
+    menuBtn.addEventListener('click', () => {
+      categoryTabs.classList.toggle('active');
+    });
+
+    // Toggle reminder
+    reminderToggle.addEventListener('change', () => {
+      if (!reminderToggle.checked) {
+        hideReminder();
+      }
+    });
+
+    // Dismiss reminder
+    reminderBtn.addEventListener('click', hideReminder);
+
+    // Check for reminder every minute
+    setInterval(checkReminderTime, 60000); // Check every minute
+    
+    // Initial check when page loads
+    setTimeout(checkReminderTime, 1000);
+  </script>
+</body>
+</html>
